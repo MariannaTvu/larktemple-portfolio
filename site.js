@@ -6,51 +6,79 @@ const mediaContent = document.querySelector('#media-content');
 const mediaTitle = document.querySelector('#media-title');
 const videoFallback = document.querySelector('#video-fallback');
 
-// Load motion only on request; restore the still image when stopped.
-const animations = document.querySelectorAll('[data-animation]');
-function stopAnimation(control) {
-  control.dataset.playing = 'false';
-  control.querySelector('img').src = control.dataset.poster;
-  control.setAttribute('aria-pressed', 'false');
-  control.setAttribute('aria-busy', 'false');
-  control.setAttribute('aria-label', control.dataset.playLabel);
-  control.querySelector('.animation-label').innerHTML = '<span aria-hidden="true">▷</span> Play animation';
+// Load visible loops without clearing the still image while they download.
+const animations = [...document.querySelectorAll('[data-animation]')];
+const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+const animationState = new Map();
+
+function setAnimationPlayback(frame, playing) {
+  const state = animationState.get(frame);
+  if (state.playing === playing) return;
+  state.playing = playing;
+  const revision = ++state.revision;
+  const button = frame.querySelector('.motion-toggle');
+  const image = frame.querySelector('img');
+  const label = `${playing ? 'Pause' : 'Play'} ${frame.dataset.label}`;
+  frame.dataset.playing = String(playing);
+  button.setAttribute('aria-label', label);
+  button.title = label;
+  button.setAttribute('aria-pressed', String(playing));
+  button.setAttribute('aria-busy', String(playing));
+  if (!playing) {
+    if (image.getAttribute('src') !== frame.dataset.poster) image.src = frame.dataset.poster;
+    return;
+  }
+  if (!state.decoded) {
+    const preload = new Image();
+    preload.src = frame.dataset.animation;
+    state.decoded = preload.decode();
+  }
+  state.decoded.then(() => {
+    if (!state.playing || state.revision !== revision) return;
+    image.src = frame.dataset.animation;
+    button.setAttribute('aria-busy', 'false');
+  }).catch(() => {
+    state.decoded = null;
+    if (!state.playing || state.revision !== revision) return;
+    state.manual = false;
+    setAnimationPlayback(frame, false);
+  });
 }
-animations.forEach((control) => {
-  control.dataset.playLabel = control.getAttribute('aria-label');
-  control.setAttribute('role', 'button');
-  control.setAttribute('aria-pressed', 'false');
-  control.addEventListener('keydown', (event) => {
-    if (event.key === ' ') { event.preventDefault(); control.click(); }
-  });
-  control.addEventListener('click', (event) => {
-    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
-    event.preventDefault();
-    if (control.dataset.playing === 'true') { stopAnimation(control); return; }
-    animations.forEach(stopAnimation);
-    control.dataset.playing = 'true';
-    control.setAttribute('aria-pressed', 'true');
-    control.setAttribute('aria-busy', 'true');
-    control.setAttribute('aria-label', control.dataset.playLabel.replace('Play ', 'Stop '));
-    const img = control.querySelector('img');
-    const label = control.querySelector('.animation-label');
-    label.textContent = 'Loading animation…';
-    img.onload = () => {
-      if (control.dataset.playing !== 'true') return;
-      control.setAttribute('aria-busy', 'false');
-      label.innerHTML = '<span aria-hidden="true">□</span> Stop animation';
-    };
-    img.onerror = () => {
-      img.onerror = null;
-      stopAnimation(control);
-      label.textContent = 'Couldn’t load — try again';
-    };
-    img.src = control.dataset.animation;
+
+function refreshAnimation(frame) {
+  const state = animationState.get(frame);
+  const automatic = !motionPreference.matches && !navigator.connection?.saveData;
+  const requested = state.manual === true || (state.manual !== false && automatic);
+  setAnimationPlayback(frame, requested && state.visible && !document.hidden && !mediaDialog.open);
+}
+
+function refreshAnimations() { animations.forEach(refreshAnimation); }
+
+animations.forEach((frame) => {
+  const state = { playing: false, visible: false, manual: null, revision: 0, decoded: null };
+  animationState.set(frame, state);
+  frame.dataset.playing = 'false';
+  const button = frame.querySelector('.motion-toggle');
+  button.hidden = false;
+  button.setAttribute('aria-pressed', 'false');
+  button.addEventListener('click', () => {
+    state.manual = !state.playing;
+    state.visible = true;
+    refreshAnimation(frame);
   });
 });
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) animations.forEach(stopAnimation);
-});
+
+if ('IntersectionObserver' in window) {
+  const visibility = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      animationState.get(entry.target).visible = entry.isIntersecting && entry.intersectionRatio >= 0.15;
+      refreshAnimation(entry.target);
+    });
+  }, { threshold: [0, 0.15] });
+  animations.forEach((frame) => visibility.observe(frame));
+}
+document.addEventListener('visibilitychange', refreshAnimations);
+motionPreference.addEventListener('change', refreshAnimations);
 
 // The original image and YouTube links remain usable without JavaScript.
 if (typeof mediaDialog.showModal === 'function') {
@@ -58,7 +86,6 @@ if (typeof mediaDialog.showModal === 'function') {
     link.addEventListener('click', (event) => {
       if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
-      animations.forEach(stopAnimation);
       mediaContent.replaceChildren();
       videoFallback.hidden = true;
 
@@ -81,6 +108,7 @@ if (typeof mediaDialog.showModal === 'function') {
         mediaContent.append(image);
       }
       mediaDialog.showModal();
+      refreshAnimations();
     });
   });
 
@@ -91,5 +119,8 @@ if (typeof mediaDialog.showModal === 'function') {
     if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) mediaDialog.close();
   });
   // Removing the iframe also stops playback when Escape or Close dismisses it.
-  mediaDialog.addEventListener('close', () => mediaContent.replaceChildren());
+  mediaDialog.addEventListener('close', () => {
+    mediaContent.replaceChildren();
+    refreshAnimations();
+  });
 }
