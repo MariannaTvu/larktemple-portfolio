@@ -25,7 +25,7 @@ Selected animation sources:
 
 The logo and favicon use Mariana’s supplied `shield-stick-icon.png`. The previous `studio.webp` and `spirit-garden.webp` art is excluded.
 
-The light page and Economica headings take their direction from Mariana’s Reflections pitch deck. Economica and Roboto are served locally. Their open font licenses are included in `assets/fonts/`.
+The dark forest background, warm ivory text and muted gold accents complement Mariana’s original artwork. The Economica headings take their direction from Mariana’s Reflections pitch deck. The page, image viewer and browser controls use a dark theme. Economica and Roboto are served locally. Their open font licenses are included in `assets/fonts/`.
 
 ## Publish to a separate GitHub Pages site
 
@@ -33,7 +33,7 @@ The existing website at `https://larktemple.github.io/` serves TowerTree's adver
 
 The included `app-ads.txt` is an exact copy of the existing 59-byte public file (Git blob SHA `ec24a53cbc447667b8b615991f8807cb954369e6`). Keep it intact on the new site too.
 
-The site is published from `main` / root in Settings → Pages at https://mariannatvu.github.io/larktemple-portfolio/. **Publish only after Mariana explicitly approves the specific reviewed update.** A push to `main` automatically publishes, so keep unapproved changes local. `.nojekyll` makes GitHub serve the HTML directly. The custom domain is not connected yet.
+The site is published from `main` / root in Settings → Pages, with `larktemple.com` configured as its custom domain. **Publish only after Mariana explicitly approves the specific reviewed update.** A push to `main` automatically publishes, so keep unapproved changes local. `.nojekyll` makes GitHub serve the HTML directly. Keep the `CNAME` file in place on future updates. GitHub manages certificate issuance, and Enforce HTTPS can be enabled once the certificate is ready.
 
 ## Connect larktemple.com
 
