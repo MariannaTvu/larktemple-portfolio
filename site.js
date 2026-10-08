@@ -6,12 +6,59 @@ const mediaContent = document.querySelector('#media-content');
 const mediaTitle = document.querySelector('#media-title');
 const videoFallback = document.querySelector('#video-fallback');
 
+// Load motion only on request; restore the still image when stopped.
+const animations = document.querySelectorAll('[data-animation]');
+function stopAnimation(control) {
+  control.dataset.playing = 'false';
+  control.querySelector('img').src = control.dataset.poster;
+  control.setAttribute('aria-pressed', 'false');
+  control.setAttribute('aria-busy', 'false');
+  control.setAttribute('aria-label', control.dataset.playLabel);
+  control.querySelector('.animation-label').innerHTML = '<span aria-hidden="true">▷</span> Play animation';
+}
+animations.forEach((control) => {
+  control.dataset.playLabel = control.getAttribute('aria-label');
+  control.setAttribute('role', 'button');
+  control.setAttribute('aria-pressed', 'false');
+  control.addEventListener('keydown', (event) => {
+    if (event.key === ' ') { event.preventDefault(); control.click(); }
+  });
+  control.addEventListener('click', (event) => {
+    if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    if (control.dataset.playing === 'true') { stopAnimation(control); return; }
+    animations.forEach(stopAnimation);
+    control.dataset.playing = 'true';
+    control.setAttribute('aria-pressed', 'true');
+    control.setAttribute('aria-busy', 'true');
+    control.setAttribute('aria-label', control.dataset.playLabel.replace('Play ', 'Stop '));
+    const img = control.querySelector('img');
+    const label = control.querySelector('.animation-label');
+    label.textContent = 'Loading animation…';
+    img.onload = () => {
+      if (control.dataset.playing !== 'true') return;
+      control.setAttribute('aria-busy', 'false');
+      label.innerHTML = '<span aria-hidden="true">□</span> Stop animation';
+    };
+    img.onerror = () => {
+      img.onerror = null;
+      stopAnimation(control);
+      label.textContent = 'Couldn’t load — try again';
+    };
+    img.src = control.dataset.animation;
+  });
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) animations.forEach(stopAnimation);
+});
+
 // The original image and YouTube links remain usable without JavaScript.
 if (typeof mediaDialog.showModal === 'function') {
   document.querySelectorAll('[data-video], [data-lightbox]').forEach((link) => {
     link.addEventListener('click', (event) => {
       if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
       event.preventDefault();
+      animations.forEach(stopAnimation);
       mediaContent.replaceChildren();
       videoFallback.hidden = true;
 

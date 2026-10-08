@@ -10,11 +10,13 @@ From this directory, run `python3 -m http.server 8765 --bind 127.0.0.1`, then op
 
 - TowerTree: released on Google Play. Screenshots and the description are based on the official store listing.
 - Reflections in the Clouds: in development for PC / Steam, with a demo coming soon. The two trailers are linked and can be played in the page. The Steam store URL has not been supplied, so there is no invented store link.
-- Spirit Garden: work in progress, currently on hold. Its artwork can be added when ready; no generated game art is used.
+- Spirit Garden: work in progress, currently on hold. Includes original environment art and two animations with play/stop controls.
 - Contact: larktemple@gmail.com.
 - Social profiles: @spacelarktemple on YouTube, Instagram, and X, as supplied by the owner.
 
-Edit `index.html` for text and links, `styles.css` for appearance, and files in `assets/` for artwork. The initial TowerTree screenshots are from Google Play, and the Reflections images are official YouTube thumbnails. They can be replaced with higher-resolution originals without changing the layout.
+Edit `index.html` for text and links, `styles.css` for appearance, and files in `assets/` for artwork. All displayed art is supplied by Mariana, from the three game folders and the `free-to-use` folder. WebP copies are resized and compressed for the web; original files are unchanged. The two Spirit Garden animations load only after selecting Play, and stop when the page is hidden or another animation starts. Image galleries and animation links also work without JavaScript.
+
+The light page and Economica headings take their direction from Mariana’s Reflections pitch deck. Economica and Roboto are served locally; their open font licenses are included in `assets/fonts/`.
 
 ## Publish to a separate GitHub Pages site
 
@@ -22,7 +24,7 @@ The existing website at `https://larktemple.github.io/` serves TowerTree's adver
 
 The included `app-ads.txt` is an exact copy of the existing 59-byte public file (Git blob SHA `ec24a53cbc447667b8b615991f8807cb954369e6`). Keep it intact on the new site too.
 
-Copy the site files into the repository root and publish from `main` / root in Settings → Pages. `.nojekyll` makes GitHub serve the HTML directly. Verify the site at its GitHub Pages address before connecting the custom domain.
+The site is published from `main` / root in Settings → Pages at https://mariannatvu.github.io/larktemple-portfolio/. Push updates to `main` to publish them. `.nojekyll` makes GitHub serve the HTML directly. The custom domain is not connected yet.
 
 ## Connect larktemple.com
 
