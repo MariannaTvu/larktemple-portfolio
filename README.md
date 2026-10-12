@@ -27,6 +27,14 @@ The logo and favicon use Mariana’s supplied `shield-stick-icon.png`. The previ
 
 The dark forest background, warm ivory text and muted gold accents complement Mariana’s original artwork. The Economica headings take their direction from Mariana’s Reflections pitch deck. The page, image viewer and browser controls use a dark theme. Economica and Roboto are served locally. Their open font licenses are included in `assets/fonts/`.
 
+## Old Wix links
+
+The old `/about` and `/trailer` URLs have small forwarding pages in `about/index.html` and `trailer/index.html`. They immediately send visitors to the matching `#about` and `#reflections` sections on `https://larktemple.com/`. Each page includes a normal fallback link and points search engines to the homepage as canonical.
+
+These use zero-second HTML refresh redirects, which Google treats as permanent redirects. They do not set HTTP 301 headers. Keep these files so old search results and bookmarks continue to work. GitHub Pages already handles the HTTP and `www` redirects to the HTTPS homepage.
+
+Reference: https://developers.google.com/search/docs/crawling-indexing/301-redirects
+
 ## Publish to a separate GitHub Pages site
 
 The existing website at `https://larktemple.github.io/` serves TowerTree's advertising file. Leave that repository and URL unchanged. This portfolio belongs in a separate public repository, `MariannaTvu/larktemple-portfolio`, using the connected GitHub account.
