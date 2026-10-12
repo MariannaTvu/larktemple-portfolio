@@ -25,7 +25,7 @@ Selected animation sources:
 
 The logo and favicon use Mariana’s supplied `shield-stick-icon.png`. The previous `studio.webp` and `spirit-garden.webp` art is excluded.
 
-The dark forest background, warm ivory text and muted gold accents complement Mariana’s original artwork. The Economica headings take their direction from Mariana’s Reflections pitch deck. The page, image viewer and browser controls use a dark theme. Economica and Roboto are served locally. Their open font licenses are included in `assets/fonts/`.
+The Darcula-inspired palette uses a neutral charcoal background, soft grey text, and peach, blue and lilac accents. Each game has its own accent colour, with matching markers in the game navigation. The Economica headings take their direction from Mariana’s Reflections pitch deck. The page, image viewer and browser controls use the same dark palette. Economica and Roboto are served locally. Their open font licenses are included in `assets/fonts/`.
 
 ## Old Wix links
 
